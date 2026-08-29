@@ -15,10 +15,22 @@ const spaceGrotesk = Space_Grotesk({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.peoplesfirstmovement.com"),
+  applicationName: "People's First Movement",
   title: "PFM | People's First Movement",
   description: "The operating workspace for People's First Movement.",
+  manifest: "/manifest.webmanifest",
+  themeColor: "#183b35",
   alternates: {
     canonical: "/",
+  },
+  icons: {
+    icon: [
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+      { url: "/favicon.ico", sizes: "any" },
+    ],
+    apple: "/apple-touch-icon.png",
+    shortcut: "/favicon.ico",
   },
   openGraph: {
     title: "People's First Movement",
@@ -31,6 +43,11 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "People's First Movement",
     description: "The operating workspace for People's First Movement.",
+  },
+  appleWebApp: {
+    capable: true,
+    title: "PFM",
+    statusBarStyle: "default",
   },
 };
 
