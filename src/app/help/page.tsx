@@ -1,0 +1,4 @@
+import { CircleHelp } from "lucide-react";
+import { WorkspaceShell } from "@/components/workspace-shell";
+
+export default function HelpPage() { return <WorkspaceShell title="Help center" subtitle="Find your way around the PFM workspace."><section className="panel page-panel"><div className="help-heading"><CircleHelp size={22} color="#247f65" /><div><h2>How PFM is organized</h2><p>Choose a geography first, then manage the people and communities within your authorized scope.</p></div></div><div className="help-links"><a href="/geography"><strong>Geography selectors</strong><span>Explore Ogun State locations</span></a><a href="/members"><strong>Member directory</strong><span>Manage membership records</span></a><a href="/settings"><strong>Access model</strong><span>Understand roles and scope</span></a></div></section></WorkspaceShell>; }
