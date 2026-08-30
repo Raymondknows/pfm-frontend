@@ -13,7 +13,11 @@ type HubSummary = {
   upcomingEvents: number;
 };
 
-const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "https://api.peoplesfirstmovement.com";
+const apiUrl = (() => {
+  const raw = process.env.NEXT_PUBLIC_API_URL ?? "https://api.peoplesfirstmovement.com";
+  const normalized = raw.replace(/\/+$/, "");
+  return normalized.endsWith("/api") ? normalized : `${normalized}/api`;
+})();
 
 export function RoleHubDashboard({ requestedRole }: { requestedRole: string }) {
   const [summary, setSummary] = useState<HubSummary | null>(null);

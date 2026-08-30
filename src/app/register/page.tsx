@@ -28,7 +28,11 @@ type FormValues = {
   wardId: string;
   pollingUnitId: string;
 };
-const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "https://api.peoplesfirstmovement.com";
+const apiUrl = (() => {
+  const raw = process.env.NEXT_PUBLIC_API_URL ?? "https://api.peoplesfirstmovement.com";
+  const normalized = raw.replace(/\/+$/, "");
+  return normalized.endsWith("/api") ? normalized : `${normalized}/api`;
+})();
 const organizationSlug = "peoples-first-movement";
 const initialForm: FormValues = {
   firstName: "",

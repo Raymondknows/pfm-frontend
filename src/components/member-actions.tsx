@@ -4,7 +4,11 @@ import { useEffect, useState } from "react";
 
 type Member = { id: string; userId: string | null; status: string; stateId: string | null; localGovernmentId: string | null; wardId: string | null; pollingUnitId: string | null; communities: Array<{ communityId: string; community: { name: string } }> };
 type Role = { id: string; name: string; scopeType: string };
-const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "https://api.peoplesfirstmovement.com";
+const apiUrl = (() => {
+  const raw = process.env.NEXT_PUBLIC_API_URL ?? "https://api.peoplesfirstmovement.com";
+  const normalized = raw.replace(/\/+$/, "");
+  return normalized.endsWith("/api") ? normalized : `${normalized}/api`;
+})();
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 export function MemberActions({ member, onChange }: { member: Member; onChange: () => void }) {

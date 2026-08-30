@@ -17,7 +17,11 @@ type Community = {
   ward: { name: string } | null;
   _count: { members: number };
 };
-const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "https://api.peoplesfirstmovement.com";
+const apiUrl = (() => {
+  const raw = process.env.NEXT_PUBLIC_API_URL ?? "https://api.peoplesfirstmovement.com";
+  const normalized = raw.replace(/\/+$/, "");
+  return normalized.endsWith("/api") ? normalized : `${normalized}/api`;
+})();
 
 export default function CommunitiesPage() {
   const canWriteCommunities = useHasPermission("communities:write");
