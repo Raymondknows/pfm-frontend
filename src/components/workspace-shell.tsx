@@ -43,14 +43,6 @@ export function WorkspaceShell({
   return (
     <div className="app-shell">
       <aside className="sidebar">
-        <div className="brand">
-          <span className="brand-mark">P</span>
-        </div>
-        <div className="workspace-switcher">
-          <span className="workspace-dot" />
-          <span>PFM</span>
-        </div>
-        
         {user && (
           <div className="sidebar-user-profile">
             <div className="user-avatar">
