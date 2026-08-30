@@ -3,8 +3,7 @@ export default function Home() {
     <main className="landing-page">
       <section className="landing-hero">
         <div className="landing-copy">
-          <p className="eyebrow">People&apos;s First Movement</p>
-          <h1>Hon. Oladipupo Adebutu</h1>
+          <h1>People&apos;s First Movement<br />for Hon. Oladipupo Adebutu</h1>
           <p className="landing-subtitle">
             Building a people-first future for our communities through grassroots leadership, accountability, and practical action for families, young people, and neighborhoods.
           </p>

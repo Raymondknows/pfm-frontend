@@ -24,15 +24,10 @@ export function WorkspaceShell({
       <aside className="sidebar">
         <div className="brand">
           <span className="brand-mark">P</span>
-          <span>People&apos;s First</span>
         </div>
         <div className="workspace-switcher">
           <span className="workspace-dot" />
-          <span>
-            <small>WORKSPACE</small>
-            <strong>PFM National</strong>
-          </span>
-          <ChevronDown size={15} />
+          <span>PFM</span>
         </div>
         <WorkspaceNavigation activeLabel={title} />
       </aside>
