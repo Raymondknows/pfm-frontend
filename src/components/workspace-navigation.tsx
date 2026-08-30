@@ -27,7 +27,7 @@ type NavigationLink = {
 };
 
 const workspaceLinks: NavigationLink[] = [
-  { label: "Overview", href: "/", permission: "dashboard:read", icon: LayoutDashboard },
+  { label: "Overview", href: "/dashboard", permission: "dashboard:read", icon: LayoutDashboard },
   { label: "Members", href: "/members", permission: "members:read", icon: Users },
   { label: "Geography", href: "/geography", permission: "geography:read", icon: MapPinned },
   { label: "Communities", href: "/communities", permission: "communities:read", icon: Activity },
