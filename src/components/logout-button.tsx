@@ -2,7 +2,7 @@
 
 import { LogOut } from "lucide-react";
 
-const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3002/api";
+const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "https://api.peoplesfirstmovement.com";
 
 export function LogoutButton() {
   async function logout() {

@@ -13,7 +13,7 @@ type Notification = {
   createdAt: string;
 };
 
-const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3002/api";
+const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "https://api.peoplesfirstmovement.com";
 
 export default function NotificationsPage() {
   const [items, setItems] = useState<Notification[] | null>(null);

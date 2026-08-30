@@ -5,7 +5,7 @@ import { ChevronDown, MapPinned } from "lucide-react";
 import { WorkspaceShell } from "@/components/workspace-shell";
 
 type Option = { id: string; name: string; code: string };
-const api = `${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3002/api"}/v1/geography`;
+const api = `${process.env.NEXT_PUBLIC_API_URL ?? "https://api.peoplesfirstmovement.com"}/v1/geography`;
 const requestOptions = () => ({
   headers: {
     Authorization: `Bearer ${localStorage.getItem("pfm.accessToken") ?? ""}`,

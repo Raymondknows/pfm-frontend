@@ -13,7 +13,7 @@ type HubSummary = {
   upcomingEvents: number;
 };
 
-const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3002/api";
+const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "https://api.peoplesfirstmovement.com";
 
 export function RoleHubDashboard({ requestedRole }: { requestedRole: string }) {
   const [summary, setSummary] = useState<HubSummary | null>(null);

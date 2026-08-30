@@ -10,7 +10,7 @@ import {
   MapPinned,
 } from "lucide-react";
 
-const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3002/api";
+const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "https://api.peoplesfirstmovement.com";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");

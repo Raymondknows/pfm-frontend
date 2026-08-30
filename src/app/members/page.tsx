@@ -47,7 +47,7 @@ export default function MembersPage() {
     }
     setLoading(true);
     fetch(
-      `http://localhost:3002/api/v1/members?page=${page}&limit=25&search=${encodeURIComponent(search)}`,
+      `${process.env.NEXT_PUBLIC_API_URL ?? "https://api.peoplesfirstmovement.com"}/v1/members?page=${page}&limit=25&search=${encodeURIComponent(search)}`,
       { headers: { Authorization: `Bearer ${token}` } },
     )
       .then(async (response) => {
