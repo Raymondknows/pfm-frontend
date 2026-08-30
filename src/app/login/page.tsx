@@ -73,17 +73,11 @@ export default function LoginPage() {
   return (
     <main className="login-page">
       <div className="login-aside">
-        <div className="brand login-brand">
-          <span className="brand-mark">P</span>
-          <span>People&apos;s First Movement</span>
-        </div>
-        <p className="program-name">Adebutu Voters Engagement Program</p>
         <div className="login-aside-copy">
-          <p className="eyebrow">Movement workspace</p>
-          <h1>
-            Organize locally.
-            <br />
-            Move together.
+          <h1 className="login-headline">
+            <span className="headline-main">People&apos;s First Movement</span>
+            <span className="headline-connector">for</span>
+            <span className="headline-lead">Hon. Oladipupo Adebutu</span>
           </h1>
           <p>
             One clear view of your people, places, and progress across Ogun

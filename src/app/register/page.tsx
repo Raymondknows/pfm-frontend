@@ -252,17 +252,11 @@ export default function RegisterPage() {
   return (
     <main className="login-page register-page">
       <section className="login-aside register-aside">
-        <div className="brand login-brand">
-          <span className="brand-mark">P</span>
-          <span>People&apos;s First Movement</span>
-        </div>
-        <p className="program-name">Adebutu Voters Engagement Program</p>
         <div className="login-aside-copy">
-          <p className="eyebrow">Member registration</p>
-          <h1>
-            Find your place.
-            <br />
-            Build together.
+          <h1 className="login-headline">
+            <span className="headline-main">People&apos;s First Movement</span>
+            <span className="headline-connector">for</span>
+            <span className="headline-lead">Hon. Oladipupo Adebutu</span>
           </h1>
           <p>
             Create your PFM member account and connect it to the place where you
