@@ -66,6 +66,7 @@ export function RoleHubDashboard({ requestedRole }: { requestedRole: string }) {
     <WorkspaceShell
       title={`${role} hub`}
       subtitle="A clear view of your movement work, scope, and priorities."
+      hidePageHeader={true}
     >
       {error ? (
         <section className="panel page-panel">

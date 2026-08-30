@@ -54,7 +54,6 @@ export function WorkspaceShell({
         <div className={`content-wrap ${fullHeight ? "content-wrap-full-height" : ""}`}>
           {!hidePageHeader && <section className="welcome-row">
             <div>
-              <p className="eyebrow">PFM National workspace</p>
               <h1>{title}</h1>
               <p className="lede">{subtitle}</p>
             </div>

@@ -54,8 +54,8 @@ export default function ReportList() {
 
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
         const url = statusFilter
-          ? `${apiUrl}/v1/reports?status=${statusFilter}`
-          : `${apiUrl}/v1/reports`;
+          ? `${apiUrl}/api/v1/reports?status=${statusFilter}`
+          : `${apiUrl}/api/v1/reports`;
 
         const response = await fetch(url, {
           headers: {

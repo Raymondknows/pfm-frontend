@@ -49,7 +49,7 @@ export default function ReportForm() {
         ...(formData.pollingUnitId && { pollingUnitId: formData.pollingUnitId }),
       };
 
-      const response = await fetch(`${apiUrl}/v1/reports`, {
+      const response = await fetch(`${apiUrl}/api/v1/reports`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
