@@ -1,6 +1,6 @@
 "use client";
 
-import { BarChart3, CalendarDays, MapPinned, ShieldCheck, Users } from "lucide-react";
+import { AlertCircle, BarChart3, CalendarDays, MapPinned, ShieldCheck, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import { WorkspaceShell } from "@/components/workspace-shell";
 
@@ -56,6 +56,7 @@ export function RoleHubDashboard({ requestedRole }: { requestedRole: string }) {
   const quickActions = [
     { label: "Review members", href: "/members", icon: Users },
     { label: "Open communities", href: "/communities", icon: MapPinned },
+    { label: "Report issue", href: "/issues", icon: AlertCircle },
     { label: "Open messages", href: "/messages", icon: ShieldCheck },
     { label: "View notifications", href: "/notifications", icon: CalendarDays },
   ];
