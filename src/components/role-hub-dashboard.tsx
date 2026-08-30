@@ -7,10 +7,13 @@ import { WorkspaceShell } from "@/components/workspace-shell";
 type HubSummary = {
   role: string;
   scopeType: string;
+  scopeName?: string;
   members: number;
   activeMembers: number;
   communities: number;
   upcomingEvents: number;
+  parentScope?: string;
+  parentScopeName?: string;
 };
 
 const apiUrl = (() => {
@@ -106,6 +109,39 @@ export function RoleHubDashboard({ requestedRole }: { requestedRole: string }) {
           </section>
 
           <section className="dashboard-grid">
+            <article className="panel">
+              <div className="panel-heading">
+                <div>
+                  <h2>My scope</h2>
+                  <p>Your operating area and authority level.</p>
+                </div>
+                <MapPinned size={20} color="#247f65" />
+              </div>
+              <div className="scope-details">
+                <div className="scope-item">
+                  <small className="scope-label">Role level</small>
+                  <strong>{scope}</strong>
+                </div>
+                {summary?.parentScopeName && (
+                  <div className="scope-item">
+                    <small className="scope-label">Within {summary.parentScope?.replace("_", " ")}</small>
+                    <strong>{summary.parentScopeName}</strong>
+                  </div>
+                )}
+                {summary?.scopeName && (
+                  <div className="scope-item">
+                    <small className="scope-label">Your {scope.toLowerCase()}</small>
+                    <strong>{summary.scopeName}</strong>
+                  </div>
+                )}
+                <div className="scope-item">
+                  <small className="scope-label">Authorization</small>
+                  <strong>Scope-limited access</strong>
+                </div>
+              </div>
+              <small className="scope-note">You can only access people, places, and information within your assigned scope.</small>
+            </article>
+
             <article className="panel hub-next">
               <div className="panel-heading">
                 <div>
@@ -124,22 +160,6 @@ export function RoleHubDashboard({ requestedRole }: { requestedRole: string }) {
                     </span>
                   </a>
                 ))}
-              </div>
-            </article>
-
-            <article className="panel">
-              <div className="panel-heading">
-                <div>
-                  <h2>Scope status</h2>
-                  <p>Your current operating boundary.</p>
-                </div>
-              </div>
-              <div className="scope-check">
-                <ShieldCheck size={18} />
-                <span>
-                  <strong>{scope} access active</strong>
-                  <small>Every request is controlled by your assigned role and geography.</small>
-                </span>
               </div>
             </article>
           </section>

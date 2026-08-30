@@ -67,40 +67,52 @@ export default function GeographyPage() {
   const [wards, setWards] = useState<Option[]>([]);
   const [units, setUnits] = useState<Option[]>([]);
   const [state, setState] = useState("");
+  const [ogunStateId, setOgunStateId] = useState("");
   const [lga, setLga] = useState("");
   const [ward, setWard] = useState("");
   const [unit, setUnit] = useState("");
+  
   useEffect(() => {
     fetchOptions(`${api}/states`)
-      .then(setStates)
+      .then((loadedStates) => {
+        setStates(loadedStates);
+        // Find and set Ogun State as permanent
+        const ogun = loadedStates.find((s) => s.name.toLowerCase().includes("ogun"));
+        if (ogun) {
+          setOgunStateId(ogun.id);
+          setState(ogun.id);
+        }
+      })
       .catch(() => setStates([]));
   }, []);
+  
   useEffect(() => {
     if (state)
       fetchOptions(`${api}/states/${state}/lgas`)
         .then(setLgas);
   }, [state]);
+  
   useEffect(() => {
     if (lga)
       fetchOptions(`${api}/lgas/${lga}/wards`)
         .then(setWards);
   }, [lga]);
+  
   useEffect(() => {
     if (ward)
       fetchOptions(`${api}/wards/${ward}/polling-units`)
         .then(setUnits);
   }, [ward]);
+  
   const selectedUnit = units.find((option) => option.id === unit);
-  function selectState(value: string) {
-    setState(value);
-    setLgas([]); setWards([]); setUnits([]);
-    setLga(""); setWard(""); setUnit("");
-  }
+  const ogunState = states.find((s) => s.id === ogunStateId);
+  
   function selectLga(value: string) {
     setLga(value);
     setWards([]); setUnits([]);
     setWard(""); setUnit("");
   }
+  
   function selectWard(value: string) {
     setWard(value);
     setUnits([]); setUnit("");
@@ -119,12 +131,15 @@ export default function GeographyPage() {
           <span className="status-badge">Ogun ready</span>
         </div>
         <div className="geo-grid">
-          <Select
-            label="State"
-            value={state}
-            options={states}
-            onChange={selectState}
-          />
+          <label className="geo-select">
+            <span>State</span>
+            <span className="geo-select-wrap" style={{ pointerEvents: "none", opacity: 0.8 }}>
+              <select disabled value={state}>
+                <option value={state}>{ogunState?.name || "Ogun State"}</option>
+              </select>
+              <ChevronDown size={15} />
+            </span>
+          </label>
           <Select
             label="Local Government"
             value={lga}
