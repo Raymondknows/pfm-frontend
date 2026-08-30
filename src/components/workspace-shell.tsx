@@ -1,8 +1,16 @@
+'use client';
+
 import { Activity, Bell, ChevronDown } from "lucide-react";
 import type { ReactNode } from "react";
+import { useEffect, useState } from "react";
 import { MobileNav } from "./mobile-nav";
 import { UserIdentity } from "./user-identity";
 import { WorkspaceNavigation } from "./workspace-navigation";
+
+interface UserInfo {
+  email: string;
+  roles?: Array<{ name: string }>;
+}
 
 export function WorkspaceShell({
   children,
@@ -19,6 +27,19 @@ export function WorkspaceShell({
   hidePageHeader?: boolean;
   fullHeight?: boolean;
 }) {
+  const [user, setUser] = useState<UserInfo | null>(null);
+
+  useEffect(() => {
+    try {
+      const userStr = localStorage.getItem('pfm.user');
+      if (userStr) {
+        setUser(JSON.parse(userStr));
+      }
+    } catch (err) {
+      console.error('Failed to parse user data:', err);
+    }
+  }, []);
+
   return (
     <div className="app-shell">
       <aside className="sidebar">
@@ -29,6 +50,21 @@ export function WorkspaceShell({
           <span className="workspace-dot" />
           <span>PFM</span>
         </div>
+        
+        {user && (
+          <div className="sidebar-user-profile">
+            <div className="user-avatar">
+              {user.email.charAt(0).toUpperCase()}
+            </div>
+            <div className="user-info">
+              <span className="user-email">{user.email.split('@')[0]}</span>
+              {user.roles && user.roles[0] && (
+                <span className="user-role">{user.roles[0].name}</span>
+              )}
+            </div>
+          </div>
+        )}
+        
         <WorkspaceNavigation activeLabel={title} />
       </aside>
       <main className="main-content">
