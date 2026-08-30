@@ -47,17 +47,19 @@ export default function LoginPage() {
           ? "/dashboard/member"
           : primaryRole === "candidate"
             ? "/dashboard/candidate"
-            : primaryRole?.includes("state")
-              ? "/dashboard/state"
-              : primaryRole?.includes("lga")
-                ? "/dashboard/lga"
-                : primaryRole?.includes("ward")
-                  ? "/dashboard/ward"
-                  : primaryRole?.includes("polling")
-                    ? "/dashboard/polling-unit"
-                    : primaryRole?.includes("community")
-                      ? "/dashboard/community"
-                      : "/";
+            : primaryRole === "admin" || primaryRole === "super admin" || primaryRole === "super-admin"
+              ? "/dashboard/admin"
+              : primaryRole?.includes("state")
+                ? "/dashboard/state"
+                : primaryRole?.includes("lga")
+                  ? "/dashboard/lga"
+                  : primaryRole?.includes("ward")
+                    ? "/dashboard/ward"
+                    : primaryRole?.includes("polling")
+                      ? "/dashboard/polling-unit"
+                      : primaryRole?.includes("community")
+                        ? "/dashboard/community"
+                        : "/";
       window.location.href = dashboard;
     } catch (loginError) {
       setError(
