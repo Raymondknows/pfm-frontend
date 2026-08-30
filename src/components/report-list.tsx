@@ -95,10 +95,11 @@ export default function ReportList() {
         </div>
         <Link
           href="/reports/new"
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+          className="primary-button"
         >
           <Plus className="w-5 h-5" />
-          <span>Submit Report</span>
+          <span className="hidden sm:inline">Submit Report</span>
+          <span className="sm:hidden">New</span>
         </Link>
       </div>
 

@@ -221,7 +221,7 @@ export default function ReportDetail() {
           <button
             onClick={handleStatusChange}
             disabled={updating || newStatus === report.status || !newStatus}
-            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition font-medium"
+            className="primary-button"
           >
             {updating ? 'Updating...' : 'Update'}
           </button>
