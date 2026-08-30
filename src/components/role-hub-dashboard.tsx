@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertCircle, BarChart3, CalendarDays, MapPinned, ShieldCheck, Users } from "lucide-react";
+import { AlertCircle, BarChart3, CalendarDays, MapPinned, ShieldCheck, Users, FileText } from "lucide-react";
 import { useEffect, useState } from "react";
 import { WorkspaceShell } from "@/components/workspace-shell";
 
@@ -57,6 +57,7 @@ export function RoleHubDashboard({ requestedRole }: { requestedRole: string }) {
     { label: "Review members", href: "/members", icon: Users },
     { label: "Open communities", href: "/communities", icon: MapPinned },
     { label: "Report issue", href: "/issues", icon: AlertCircle },
+    { label: "Submit report", href: "/reports/new", icon: FileText },
     { label: "Open messages", href: "/messages", icon: ShieldCheck },
     { label: "View notifications", href: "/notifications", icon: CalendarDays },
   ];
