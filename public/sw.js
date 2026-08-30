@@ -1,4 +1,4 @@
-const CACHE_NAME = "pfm-shell-v1";
+const CACHE_NAME = "pfm-shell-v2";
 const APP_SHELL = ["/", "/login", "/manifest.webmanifest"];
 
 self.addEventListener("install", (event) => {

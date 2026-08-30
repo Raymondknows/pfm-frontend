@@ -7,7 +7,7 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "Campaign operations and community engagement for People's First Movement.",
     start_url: "/",
     scope: "/",
-    id: "/",
+    id: "/pfm-v2",
     display: "standalone",
     display_override: ["window-controls-overlay", "standalone", "minimal-ui"],
     background_color: "#f7faf8",
@@ -17,10 +17,10 @@ export default function manifest(): MetadataRoute.Manifest {
     lang: "en",
     prefer_related_applications: false,
     icons: [
-      { src: "/android-chrome-192x192.png", sizes: "192x192", type: "image/png", purpose: "any" },
-      { src: "/android-chrome-512x512.png", sizes: "512x512", type: "image/png", purpose: "any" },
-      { src: "/android-chrome-512x512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
-      { src: "/apple-touch-icon.png", sizes: "180x180", type: "image/png", purpose: "any" },
+      { src: "/pwa-icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
+      { src: "/pwa-icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" },
+      { src: "/pwa-icon-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
+      { src: "/pwa-icon-180.png", sizes: "180x180", type: "image/png", purpose: "any" },
     ],
   };
 }

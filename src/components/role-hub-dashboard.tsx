@@ -50,10 +50,17 @@ export function RoleHubDashboard({ requestedRole }: { requestedRole: string }) {
 
   const role = summary?.role ?? requestedRole;
   const scope = summary?.scopeType?.replace("_", " ") ?? "AUTHORIZED";
+  const quickActions = [
+    { label: "Review members", href: "/members", icon: Users },
+    { label: "Open communities", href: "/communities", icon: MapPinned },
+    { label: "Open messages", href: "/messages", icon: ShieldCheck },
+    { label: "View notifications", href: "/notifications", icon: CalendarDays },
+  ];
+
   return (
     <WorkspaceShell
       title={`${role} hub`}
-      subtitle="A role-aware operating view shaped by your assigned organization and geographic scope."
+      subtitle="A clear view of your movement work, scope, and priorities."
     >
       {error ? (
         <section className="panel page-panel">
@@ -61,14 +68,81 @@ export function RoleHubDashboard({ requestedRole }: { requestedRole: string }) {
         </section>
       ) : (
         <>
-          <section className="hub-banner"><div className="hub-banner-icon"><ShieldCheck size={22} /></div><div><span className="eyebrow">Authorized hub</span><h2>{role}</h2><p>{scope} scope · Data is limited to your permitted area.</p></div><MapPinned size={20} /></section>
-          <section className="kpi-grid hub-kpis">
-            <article className="kpi-card"><div className="kpi-icon green"><Users size={19} /></div><div className="kpi-label">Members in scope</div><strong>{summary?.members ?? "..."}</strong><span className="trend neutral">{summary ? `${summary.activeMembers} active` : "Loading authorized data"}</span></article>
-            <article className="kpi-card"><div className="kpi-icon coral"><Users size={19} /></div><div className="kpi-label">Active members</div><strong>{summary?.activeMembers ?? "..."}</strong><span className="trend neutral">Current participation</span></article>
-            <article className="kpi-card"><div className="kpi-icon blue"><MapPinned size={19} /></div><div className="kpi-label">Communities</div><strong>{summary?.communities ?? "..."}</strong><span className="trend neutral">Within authorized scope</span></article>
-            <article className="kpi-card"><div className="kpi-icon yellow"><CalendarDays size={19} /></div><div className="kpi-label">Upcoming events</div><strong>{summary?.upcomingEvents ?? "..."}</strong><span className="trend neutral">Organization schedule</span></article>
+          <section className="hub-banner">
+            <div className="hub-banner-icon"><ShieldCheck size={22} /></div>
+            <div>
+              <span className="eyebrow">Authorized hub</span>
+              <h2>{role}</h2>
+              <p>{scope} scope · Your workspace is limited to the people and places you are allowed to manage.</p>
+            </div>
+            <MapPinned size={20} />
           </section>
-          <section className="dashboard-grid"><article className="panel hub-next"><div className="panel-heading"><div><h2>Next actions</h2><p>Operational areas available to this hub.</p></div><BarChart3 size={20} color="#247f65" /></div><div className="hub-action-list"><a href="/members"><Users size={17} /><span><strong>Review members</strong><small>See records inside your authorized scope.</small></span></a><a href="/communities"><MapPinned size={17} /><span><strong>Open communities</strong><small>Work with the geographic spaces assigned to you.</small></span></a><a href="/messages"><ShieldCheck size={17} /><span><strong>Open messages</strong><small>Communicate with permitted contacts and communities.</small></span></a></div></article><article className="panel"><div className="panel-heading"><div><h2>Scope control</h2><p>Every request is verified by the backend.</p></div></div><div className="scope-check"><ShieldCheck size={18} /><span><strong>{scope} access active</strong><small>Changing a URL or ID cannot expand this view.</small></span></div></article></section>
+
+          <section className="kpi-grid hub-kpis">
+            <article className="kpi-card">
+              <div className="kpi-icon green"><Users size={19} /></div>
+              <div className="kpi-label">Members in scope</div>
+              <strong>{summary?.members ?? "..."}</strong>
+              <span className="trend neutral">{summary ? `${summary.activeMembers} active` : "Loading"}</span>
+            </article>
+            <article className="kpi-card">
+              <div className="kpi-icon coral"><Users size={19} /></div>
+              <div className="kpi-label">Active members</div>
+              <strong>{summary?.activeMembers ?? "..."}</strong>
+              <span className="trend neutral">Current participation</span>
+            </article>
+            <article className="kpi-card">
+              <div className="kpi-icon blue"><MapPinned size={19} /></div>
+              <div className="kpi-label">Communities</div>
+              <strong>{summary?.communities ?? "..."}</strong>
+              <span className="trend neutral">Within scope</span>
+            </article>
+            <article className="kpi-card">
+              <div className="kpi-icon yellow"><CalendarDays size={19} /></div>
+              <div className="kpi-label">Upcoming events</div>
+              <strong>{summary?.upcomingEvents ?? "..."}</strong>
+              <span className="trend neutral">Planned actions</span>
+            </article>
+          </section>
+
+          <section className="dashboard-grid">
+            <article className="panel hub-next">
+              <div className="panel-heading">
+                <div>
+                  <h2>Quick actions</h2>
+                  <p>Most common tasks for your current role.</p>
+                </div>
+                <BarChart3 size={20} color="#247f65" />
+              </div>
+              <div className="hub-action-list">
+                {quickActions.map(({ label, href, icon: Icon }) => (
+                  <a href={href} key={label}>
+                    <Icon size={17} />
+                    <span>
+                      <strong>{label}</strong>
+                      <small>Open the relevant workspace for {label.toLowerCase()}.</small>
+                    </span>
+                  </a>
+                ))}
+              </div>
+            </article>
+
+            <article className="panel">
+              <div className="panel-heading">
+                <div>
+                  <h2>Scope status</h2>
+                  <p>Your current operating boundary.</p>
+                </div>
+              </div>
+              <div className="scope-check">
+                <ShieldCheck size={18} />
+                <span>
+                  <strong>{scope} access active</strong>
+                  <small>Every request is controlled by your assigned role and geography.</small>
+                </span>
+              </div>
+            </article>
+          </section>
         </>
       )}
     </WorkspaceShell>
