@@ -2,6 +2,7 @@
 
 import { AlertCircle, BarChart3, CalendarDays, MapPinned, ShieldCheck, Users, FileText } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { WorkspaceShell } from "@/components/workspace-shell";
 
 type HubSummary = {
@@ -23,25 +24,33 @@ const apiUrl = (() => {
 })();
 
 export function RoleHubDashboard({ requestedRole }: { requestedRole: string }) {
+  const router = useRouter();
   const [summary, setSummary] = useState<HubSummary | null>(null);
   const [error, setError] = useState("");
   useEffect(() => {
     const token = localStorage.getItem("pfm.accessToken");
     if (!token) {
-      window.location.href = "/login";
+      router.push("/login");
       return;
     }
     fetch(`${apiUrl}/v1/analytics/hub`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(async (response) => {
+        if (response.status === 401) {
+          localStorage.removeItem("pfm.accessToken");
+          localStorage.removeItem("pfm.refreshToken");
+          localStorage.removeItem("pfm.user");
+          router.push("/login");
+          return null;
+        }
         const body: unknown = await response.json();
         if (!response.ok || typeof body !== "object" || body === null) {
           throw new Error("Unable to load your hub dashboard");
         }
         return body as HubSummary;
       })
-      .then(setSummary)
+      .then((summary) => summary && setSummary(summary))
       .catch((requestError: unknown) =>
         setError(
           requestError instanceof Error
@@ -49,7 +58,7 @@ export function RoleHubDashboard({ requestedRole }: { requestedRole: string }) {
             : "Unable to load your hub dashboard",
         ),
       );
-  }, []);
+  }, [router]);
 
   const role = summary?.role ?? requestedRole;
   const scope = summary?.scopeType?.replace("_", " ") ?? "AUTHORIZED";

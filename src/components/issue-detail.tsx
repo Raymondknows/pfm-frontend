@@ -59,7 +59,7 @@ export function IssueDetail() {
   useEffect(() => {
     const token = localStorage.getItem("pfm.accessToken");
     if (!token) {
-      window.location.href = "/login";
+      router.push("/login");
       return;
     }
 
@@ -68,15 +68,22 @@ export function IssueDetail() {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(async (res) => {
+        if (res.status === 401) {
+          localStorage.removeItem("pfm.accessToken");
+          localStorage.removeItem("pfm.refreshToken");
+          localStorage.removeItem("pfm.user");
+          router.push("/login");
+          return null;
+        }
         if (!res.ok) throw new Error("Failed to load issue");
-        return res.json() as Promise<Issue>;
+        return (await res.json()) as Issue;
       })
-      .then(setIssue)
+      .then((issue) => issue && setIssue(issue))
       .catch((err: unknown) =>
         setError(err instanceof Error ? err.message : "Failed to load issue"),
       )
       .finally(() => setLoading(false));
-  }, [issueId]);
+  }, [issueId, router]);
 
   const handleStatusChange = async (newStatus: string) => {
     if (!issue) return;

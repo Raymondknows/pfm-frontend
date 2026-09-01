@@ -45,9 +45,15 @@ export function CreateIssueForm({ onSuccess }: CreateIssueFormProps) {
         },
         body: JSON.stringify(formData),
       });
-
+      if (response.status === 401) {
+        localStorage.removeItem("pfm.accessToken");
+        localStorage.removeItem("pfm.refreshToken");
+        localStorage.removeItem("pfm.user");
+        router.push("/login");
+        return;
+      }
       if (!response.ok) {
-        const errorData = await response.json() as { message?: string };
+        const errorData = (await response.json()) as { message?: string };
         throw new Error(errorData.message || "Failed to create issue");
       }
 

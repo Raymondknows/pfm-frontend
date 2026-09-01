@@ -2,7 +2,9 @@
 
 import { AlertCircle, CheckCircle2, Clock, AlertTriangle, Zap, Users } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useSessionHandler } from "@/lib/session";
 
 type Issue = {
   id: string;
@@ -44,6 +46,8 @@ const statusBadges: Record<Issue["status"], { label: string; className: string; 
 };
 
 export function IssueList() {
+  const router = useRouter();
+  const { handleUnauthorizedResponse } = useSessionHandler();
   const [issues, setIssues] = useState<Issue[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -52,7 +56,7 @@ export function IssueList() {
   useEffect(() => {
     const token = localStorage.getItem("pfm.accessToken");
     if (!token) {
-      window.location.href = "/login";
+      router.push("/login");
       return;
     }
 
@@ -65,10 +69,17 @@ export function IssueList() {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(async (res) => {
+        if (res.status === 401) {
+          localStorage.removeItem("pfm.accessToken");
+          localStorage.removeItem("pfm.refreshToken");
+          localStorage.removeItem("pfm.user");
+          router.push("/login");
+          return [];
+        }
         if (!res.ok) throw new Error("Failed to load issues");
-        return res.json() as Promise<Issue[]>;
+        return (await res.json()) as Issue[];
       })
-      .then(setIssues)
+      .then((issues) => setIssues(issues))
       .catch((err: unknown) =>
         setError(err instanceof Error ? err.message : "Failed to load issues"),
       )

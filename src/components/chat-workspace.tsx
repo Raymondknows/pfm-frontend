@@ -14,7 +14,9 @@ import {
   Users,
   X,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
+import { useSessionHandler } from "@/lib/session";
 
 type Conversation = {
   id: string;
@@ -58,10 +60,22 @@ const apiUrl = (() => {
   const normalized = raw.replace(/\/+$/, "");
   return normalized.endsWith("/api") ? normalized : `${normalized}/api`;
 })();
+
+let sessionRouter: ReturnType<typeof useRouter> | null = null;
+
 function apiRequest(path: string, token: string, options?: RequestInit) {
   return fetch(`${apiUrl}${path}`, {
     ...options,
     headers: { Authorization: `Bearer ${token}`, ...(options?.headers ?? {}) },
+  }).then(async (response) => {
+    if (response.status === 401 && sessionRouter) {
+      localStorage.removeItem("pfm.accessToken");
+      localStorage.removeItem("pfm.refreshToken");
+      localStorage.removeItem("pfm.user");
+      sessionRouter.push("/login");
+      throw new Error("Session expired");
+    }
+    return response;
   });
 }
 
@@ -100,6 +114,9 @@ function MediaAttachment({
 }
 
 export function ChatWorkspace() {
+  const router = useRouter();
+  const { handleUnauthorizedResponse } = useSessionHandler();
+  sessionRouter = router;
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedId, setSelectedId] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
