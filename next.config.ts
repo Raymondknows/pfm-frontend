@@ -1,6 +1,6 @@
 import type { NextConfig } from "next";
 
-const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "https://api.peoplesfirstmovement.com";
+const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3002/api";
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.peoplesfirstmovement.com";
 
 const nextConfig: NextConfig = {

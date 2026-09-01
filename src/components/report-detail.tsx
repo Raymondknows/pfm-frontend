@@ -56,7 +56,7 @@ export default function ReportDetail() {
           return;
         }
 
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002/api';
         const response = await fetch(`${apiUrl}/api/v1/reports/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -93,7 +93,7 @@ export default function ReportDetail() {
 
     try {
       const token = localStorage.getItem('pfm.accessToken');
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002/api';
 
       const response = await fetch(`${apiUrl}/api/v1/reports/${id}/status`, {
         method: 'PATCH',

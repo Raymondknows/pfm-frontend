@@ -7,7 +7,7 @@ import { WorkspaceShell } from "@/components/workspace-shell";
 type Community = { id: string; name: string; description: string | null; type: string; status: string; state: { name: string } | null; localGovernment: { name: string } | null; ward: { name: string } | null; pollingUnit: { name: string } | null; _count: { members: number } };
 type Member = { joinedAt: string; membership: { id: string; firstName: string; lastName: string; email: string | null; phone: string | null; whatsappNumber: string | null; status: string } };
 const apiUrl = (() => {
-  const raw = process.env.NEXT_PUBLIC_API_URL ?? "https://api.peoplesfirstmovement.com";
+  const raw = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3002/api";
   const normalized = raw.replace(/\/+$/, "");
   return normalized.endsWith("/api") ? normalized : `${normalized}/api`;
 })();

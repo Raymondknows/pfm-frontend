@@ -52,7 +52,7 @@ export default function ReportList() {
           return;
         }
 
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002/api';
         const url = statusFilter
           ? `${apiUrl}/api/v1/reports?status=${statusFilter}`
           : `${apiUrl}/api/v1/reports`;

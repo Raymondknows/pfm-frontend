@@ -7,7 +7,7 @@ import { useSessionHandler } from "@/lib/session";
 type Member = { id: string; userId: string | null; status: string; stateId: string | null; localGovernmentId: string | null; wardId: string | null; pollingUnitId: string | null; communities: Array<{ communityId: string; community: { name: string } }> };
 type Role = { id: string; name: string; scopeType: string };
 const apiUrl = (() => {
-  const raw = process.env.NEXT_PUBLIC_API_URL ?? "https://api.peoplesfirstmovement.com";
+  const raw = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3002/api";
   const normalized = raw.replace(/\/+$/, "");
   return normalized.endsWith("/api") ? normalized : `${normalized}/api`;
 })();
