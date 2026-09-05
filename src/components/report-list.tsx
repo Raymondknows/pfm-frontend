@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ChevronDown, AlertCircle, Plus } from 'lucide-react';
+import { useHasPermission } from './workspace-navigation';
 
 type ReportStatus = 'DRAFT' | 'SUBMITTED' | 'REVIEWING' | 'APPROVED' | 'REJECTED' | 'ARCHIVED';
 
@@ -42,6 +43,13 @@ export default function ReportList() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [statusFilter, setStatusFilter] = useState<ReportStatus | ''>('');
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+  const hasReportWritePermission = useHasPermission('reports:write');
+  const canSubmitReports = !isSuperAdmin && hasReportWritePermission;
+
+  useEffect(() => {
+    try { setIsSuperAdmin(JSON.parse(localStorage.getItem('pfm.user') ?? '{}').roles?.some((role: { name?: string }) => role.name === 'Super Admin') ?? false); } catch { setIsSuperAdmin(false); }
+  }, []);
 
   useEffect(() => {
     const fetchReports = async () => {
@@ -54,8 +62,8 @@ export default function ReportList() {
 
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002/api';
         const url = statusFilter
-          ? `${apiUrl}/api/v1/reports?status=${statusFilter}`
-          : `${apiUrl}/api/v1/reports`;
+          ? `${apiUrl}/v1/reports?status=${statusFilter}`
+          : `${apiUrl}/v1/reports`;
 
         const response = await fetch(url, {
           headers: {
@@ -88,19 +96,12 @@ export default function ReportList() {
 
   return (
     <div className="p-4 md:p-6 max-w-6xl">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Field Reports</h1>
-          <p className="text-gray-600 mt-1">Manage and track field reports from your coordinators</p>
-        </div>
-        <Link
-          href="/reports/new"
-          className="primary-button"
-        >
+      <div className="flex items-center justify-end mb-6">
+        {canSubmitReports && <Link href="/reports/new" className="primary-button">
           <Plus className="w-5 h-5" />
           <span className="hidden sm:inline">Submit Report</span>
           <span className="sm:hidden">New</span>
-        </Link>
+        </Link>}
       </div>
 
       {error && (

@@ -1,14 +1,18 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { CheckCircle, AlertCircle } from 'lucide-react';
+import { useHasPermission } from './workspace-navigation';
 
 export default function ReportForm() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+  const hasReportWritePermission = useHasPermission('reports:write');
+  const canSubmitReports = !isSuperAdmin && hasReportWritePermission;
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -17,6 +21,10 @@ export default function ReportForm() {
     wardId: '',
     pollingUnitId: '',
   });
+
+  useEffect(() => {
+    try { setIsSuperAdmin(JSON.parse(localStorage.getItem('pfm.user') ?? '{}').roles?.some((role: { name?: string }) => role.name === 'Super Admin') ?? false); } catch { setIsSuperAdmin(false); }
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -49,7 +57,7 @@ export default function ReportForm() {
         ...(formData.pollingUnitId && { pollingUnitId: formData.pollingUnitId }),
       };
 
-      const response = await fetch(`${apiUrl}/api/v1/reports`, {
+      const response = await fetch(`${apiUrl}/v1/reports`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -70,7 +78,7 @@ export default function ReportForm() {
 
       setSuccess(true);
       setTimeout(() => {
-        router.push('/reports');
+        router.push('/dashboard');
       }, 1500);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
@@ -78,6 +86,10 @@ export default function ReportForm() {
       setLoading(false);
     }
   };
+
+  if (!canSubmitReports) {
+    return <div className="empty-state"><h2>Report submission is restricted</h2><p>Super Admins receive and review field reports.</p><button className="primary-button" type="button" onClick={() => router.push('/reports')}>View reports</button></div>;
+  }
 
   if (success) {
     return (

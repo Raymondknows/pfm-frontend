@@ -2,8 +2,10 @@
 
 import {
   CheckCheck,
+  ChevronLeft,
   ImagePlus,
   Mic,
+  MoreVertical,
   Paperclip,
   Play,
   Search,
@@ -14,7 +16,6 @@ import {
   Users,
   X,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { useSessionHandler } from "@/lib/session";
 
@@ -61,18 +62,13 @@ const apiUrl = (() => {
   return normalized.endsWith("/api") ? normalized : `${normalized}/api`;
 })();
 
-let sessionRouter: ReturnType<typeof useRouter> | null = null;
-
-function apiRequest(path: string, token: string, options?: RequestInit) {
+function apiRequest(path: string, token: string, options?: RequestInit, onUnauthorized?: () => void) {
   return fetch(`${apiUrl}${path}`, {
     ...options,
     headers: { Authorization: `Bearer ${token}`, ...(options?.headers ?? {}) },
   }).then(async (response) => {
-    if (response.status === 401 && sessionRouter) {
-      localStorage.removeItem("pfm.accessToken");
-      localStorage.removeItem("pfm.refreshToken");
-      localStorage.removeItem("pfm.user");
-      sessionRouter.push("/login");
+    if (response.status === 401 && onUnauthorized) {
+      onUnauthorized();
       throw new Error("Session expired");
     }
     return response;
@@ -105,18 +101,19 @@ function MediaAttachment({
   if (!url) return <span className="media-loading">Loading media...</span>;
   return attachment.mimeType.startsWith("image/") ? (
     <img src={url} alt={attachment.originalName} />
+  ) : attachment.mimeType.startsWith("video/") ? (
+    <span className="video-message">
+      <video controls src={url} />
+    </span>
   ) : (
     <span className="audio-message">
       <audio controls src={url} />
-      <small>{attachment.originalName}</small>
     </span>
   );
 }
 
 export function ChatWorkspace() {
-  const router = useRouter();
   const { handleUnauthorizedResponse } = useSessionHandler();
-  sessionRouter = router;
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedId, setSelectedId] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
@@ -130,6 +127,9 @@ export function ChatWorkspace() {
   const [communityOptions, setCommunityOptions] = useState<CommunityOption[]>([]);
   const [newConversation, setNewConversation] = useState(false);
   const [editingId, setEditingId] = useState("");
+  const [messageMenuId, setMessageMenuId] = useState("");
+  const [loadingOlder, setLoadingOlder] = useState(false);
+  const [conversationSearch, setConversationSearch] = useState("");
   const recorder = useRef<MediaRecorder | null>(null);
   const chunks = useRef<Blob[]>([]);
   const userId =
@@ -149,7 +149,7 @@ export function ChatWorkspace() {
       ? ""
       : (localStorage.getItem("pfm.accessToken") ?? "");
   useEffect(() => {
-    apiRequest("/v1/communications/conversations", token)
+    apiRequest("/v1/communications/conversations", token, undefined, () => handleUnauthorizedResponse(401))
       .then(async (response) => {
         if (!response.ok) throw new Error("Unable to load conversations");
         return response.json() as Promise<Conversation[]>;
@@ -170,8 +170,8 @@ export function ChatWorkspace() {
 
   useEffect(() => {
     Promise.all([
-      apiRequest("/v1/communications/contacts", token),
-      apiRequest("/v1/communities", token),
+      apiRequest("/v1/communications/contacts", token, undefined, () => handleUnauthorizedResponse(401)),
+      apiRequest("/v1/communities", token, undefined, () => handleUnauthorizedResponse(401)),
     ])
       .then(async ([contactResponse, communityResponse]) => {
         if (!contactResponse.ok || !communityResponse.ok) throw new Error("Unable to load permitted contacts");
@@ -182,7 +182,7 @@ export function ChatWorkspace() {
   }, [token]);
 
   async function createConversation(value: string, kind: "userId" | "communityId") {
-    const response = await apiRequest("/v1/communications/conversations", token, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ [kind]: value }) });
+    const response = await apiRequest("/v1/communications/conversations", token, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ [kind]: value }) }, () => handleUnauthorizedResponse(401));
     if (!response.ok) { setError("Conversation could not be started"); return; }
     const conversation = await response.json() as Conversation;
     setConversations((current) => [conversation, ...current.filter((item) => item.id !== conversation.id)]);
@@ -191,8 +191,8 @@ export function ChatWorkspace() {
 
   useEffect(() => {
     if (!selectedId) return;
-    void apiRequest(`/v1/communications/conversations/${selectedId}/read`, token, { method: "POST" });
-    apiRequest(`/v1/communications/conversations/${selectedId}/messages`, token)
+    void apiRequest(`/v1/communications/conversations/${selectedId}/read`, token, { method: "POST" }, () => handleUnauthorizedResponse(401));
+    apiRequest(`/v1/communications/conversations/${selectedId}/messages`, token, undefined, () => handleUnauthorizedResponse(401))
       .then(async (response) => {
         if (!response.ok) throw new Error("Unable to load messages");
         return response.json() as Promise<Message[]>;
@@ -219,6 +219,7 @@ export function ChatWorkspace() {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ body: draft }),
       },
+      () => handleUnauthorizedResponse(401),
     );
     if (!response.ok) {
       setError("Message could not be sent");
@@ -229,6 +230,18 @@ export function ChatWorkspace() {
     setMessages((current) => [...current, message]);
     setDraft("");
     setSending(false);
+  }
+
+  async function loadOlderMessages() {
+    if (!selectedId || !messages.length || loadingOlder) return;
+    setLoadingOlder(true);
+    const oldest = messages[0];
+    const response = await apiRequest(`/v1/communications/conversations/${selectedId}/messages?before=${encodeURIComponent(oldest.id)}`, token, undefined, () => handleUnauthorizedResponse(401));
+    if (response.ok) {
+      const older = await response.json() as Message[];
+      setMessages((current) => [...older, ...current]);
+    }
+    setLoadingOlder(false);
   }
 
   async function sendFile() {
@@ -242,6 +255,7 @@ export function ChatWorkspace() {
       `/v1/communications/conversations/${selectedId}/media`,
       token,
       { method: "POST", body: data },
+      () => handleUnauthorizedResponse(401),
     );
     if (!response.ok) {
       setError("Media could not be sent");
@@ -258,14 +272,14 @@ export function ChatWorkspace() {
   async function updateMessage(messageId: string) {
     const body = draft.trim();
     if (!body) return;
-    const response = await apiRequest(`/v1/communications/messages/${messageId}`, token, { method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify({ body }) });
+    const response = await apiRequest(`/v1/communications/messages/${messageId}`, token, { method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify({ body }) }, () => handleUnauthorizedResponse(401));
     if (!response.ok) { setError("Message could not be updated"); return; }
     const updated = await response.json() as Message;
     setMessages((current) => current.map((message) => message.id === updated.id ? { ...message, ...updated } : message)); setEditingId(""); setDraft("");
   }
 
   async function removeMessage(messageId: string) {
-    const response = await apiRequest(`/v1/communications/messages/${messageId}`, token, { method: "DELETE" });
+    const response = await apiRequest(`/v1/communications/messages/${messageId}`, token, { method: "DELETE" }, () => handleUnauthorizedResponse(401));
     if (!response.ok) { setError("Message could not be deleted"); return; }
     setMessages((current) => current.map((message) => message.id === messageId ? { ...message, body: null, deletedAt: new Date().toISOString() } : message));
   }
@@ -313,9 +327,20 @@ export function ChatWorkspace() {
     selected?.members.find((member) => member.userId !== userId)?.user
       .firstName ??
     "Conversation";
+  const initials = title
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join("")
+    .toUpperCase();
+  const visibleConversations = conversations.filter((conversation) => {
+    const name = conversation.community?.name ?? conversation.title ?? "Direct conversation";
+    return name.toLowerCase().includes(conversationSearch.toLowerCase());
+  });
 
   return (
-    <section className="chat-shell">
+    <section className={`chat-shell ${selectedId ? "thread-open" : "list-open"}`}>
       <aside className="chat-list">
         <div className="chat-list-head">
           <div>
@@ -329,7 +354,7 @@ export function ChatWorkspace() {
         {newConversation && <div className="new-conversation"><strong>Start a conversation</strong><label>Direct contact<select defaultValue="" onChange={(event) => { if (event.target.value) void createConversation(event.target.value, "userId"); }}><option value="">Choose a permitted contact</option>{contacts.map((contact) => <option value={contact.userId} key={contact.userId}>{contact.firstName} {contact.lastName}</option>)}</select></label><label>Community<select defaultValue="" onChange={(event) => { if (event.target.value) void createConversation(event.target.value, "communityId"); }}><option value="">Choose a permitted community</option>{communityOptions.map((community) => <option value={community.id} key={community.id}>{community.name}</option>)}</select></label></div>}
         <label className="chat-search">
           <Search size={16} />
-          <input placeholder="Search conversations" />
+          <input placeholder="Search or start new chat" value={conversationSearch} onChange={(event) => setConversationSearch(event.target.value)} />
         </label>
         {loading ? (
           <div className="chat-empty">Loading conversations...</div>
@@ -343,7 +368,7 @@ export function ChatWorkspace() {
           </div>
         ) : (
           <div className="conversation-list">
-            {conversations.map((conversation) => (
+            {visibleConversations.map((conversation) => (
               <button
                 className={`conversation-row ${conversation.id === selectedId ? "selected" : ""}`}
                 key={conversation.id}
@@ -353,7 +378,7 @@ export function ChatWorkspace() {
                   {conversation.type === "COMMUNITY" ? (
                     <Users size={16} />
                   ) : (
-                    (conversation.title?.slice(0, 1) ?? "P")
+                    (conversation.title?.slice(0, 2) ?? "P").toUpperCase()
                   )}
                 </span>
                 <span>
@@ -371,11 +396,12 @@ export function ChatWorkspace() {
       </aside>
       <div className="chat-thread">
         <header className="chat-thread-head">
+          <button className="chat-mobile-back" aria-label="Back to conversations" onClick={() => setSelectedId("")}><ChevronLeft size={21} /></button>
           <span className="conversation-avatar">
             {selected?.type === "COMMUNITY" ? (
               <Users size={16} />
             ) : (
-              title.slice(0, 1)
+              initials || "P"
             )}
           </span>
           <span>
@@ -386,6 +412,10 @@ export function ChatWorkspace() {
                 : "Private conversation"}
             </small>
           </span>
+            <div className="thread-actions">
+              <button className="icon-button" aria-label="Search in conversation"><Search size={18} /></button>
+              <button className="icon-button" aria-label="More conversation options"><MoreVertical size={19} /></button>
+            </div>
         </header>
         {error && (
           <div className="chat-error" role="alert">
@@ -405,7 +435,13 @@ export function ChatWorkspace() {
               </span>
             </div>
           ) : (
-            messages.map((message) => (
+            <>
+            {messages.length >= 100 && <button className="load-older-button" onClick={() => void loadOlderMessages()} disabled={loadingOlder}>{loadingOlder ? "Loading older messages..." : "Load older messages"}</button>}
+            {messages.map((message, index) => (
+              <div className="message-group" key={`${message.id}-group`}>
+                {(index === 0 || new Date(messages[index - 1].createdAt).toDateString() !== new Date(message.createdAt).toDateString()) && (
+                  <time className="message-date">{new Date(message.createdAt).toLocaleDateString([], { day: "numeric", month: "short", year: "numeric" })}</time>
+                )}
               <article
                 className={`message-bubble ${message.senderId === userId ? "outgoing" : "incoming"}`}
                 key={message.id}
@@ -427,9 +463,11 @@ export function ChatWorkspace() {
                   </time>
                   {message.senderId === userId && <CheckCheck size={14} />}
                 </footer>
-                {message.senderId === userId && !message.deletedAt && <div className="message-tools"><button onClick={() => { setEditingId(message.id); setDraft(message.body ?? ""); }} aria-label="Edit message">Edit</button><button onClick={() => void removeMessage(message.id)} aria-label="Delete message"><Trash2 size={12} /></button></div>}
+                {message.senderId === userId && !message.deletedAt && <div className="message-tools"><button className="message-menu-trigger" onClick={() => setMessageMenuId((current) => current === message.id ? "" : message.id)} aria-label="Message options"><MoreVertical size={15} /></button>{messageMenuId === message.id && <div className="message-menu"><button onClick={() => { setEditingId(message.id); setDraft(message.body ?? ""); setMessageMenuId(""); }}>Edit</button><button className="danger" onClick={() => { void removeMessage(message.id); setMessageMenuId(""); }}><Trash2 size={12} />Delete</button></div>}</div>}
               </article>
-            ))
+              </div>
+            ))}
+            </>
           )}
         </div>
         <div className="chat-composer">

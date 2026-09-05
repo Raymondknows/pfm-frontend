@@ -9,9 +9,21 @@ interface BeforeInstallPromptEvent extends Event { prompt: () => Promise<void>; 
 export function PwaInstallPrompt() {
   const [prompt, setPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [dismissed, setDismissed] = useState(false);
+  const [authenticated, setAuthenticated] = useState(false);
   const hasShown = useRef(false);
 
   useEffect(() => {
+    const updateAuthentication = () => setAuthenticated(Boolean(localStorage.getItem("pfm.accessToken")));
+    updateAuthentication();
+    window.addEventListener("storage", updateAuthentication);
+    return () => window.removeEventListener("storage", updateAuthentication);
+  }, []);
+
+  useEffect(() => {
+    if (authenticated) {
+      setPrompt(null);
+      return;
+    }
     if (window.matchMedia("(display-mode: standalone)").matches || (navigator as Navigator & { standalone?: boolean }).standalone) return;
 
     const onInstallAvailable = (event: Event) => {
@@ -46,9 +58,9 @@ export function PwaInstallPrompt() {
       window.removeEventListener("beforeinstallprompt", onInstallAvailable);
       window.removeEventListener("appinstalled", onInstalled);
     };
-  }, [dismissed]);
+  }, [authenticated, dismissed]);
 
-  if (!prompt || dismissed) return null;
+  if (authenticated || !prompt || dismissed) return null;
 
   return (
     <div className="install-prompt">

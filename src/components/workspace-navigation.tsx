@@ -9,21 +9,24 @@ import {
   MapPinned,
   MessageCircle,
   Bell,
+  ClipboardCheck,
   Settings2,
   Users,
 } from "lucide-react";
-import { useSyncExternalStore } from "react";
+import { useEffect, useState } from "react";
 import { LogoutButton } from "./logout-button";
 
 type StoredUser = {
-  roles?: Array<{ permissions?: string[] }>;
+  roles?: Array<{ name?: string; permissions?: string[] }>;
 };
 
 type NavigationLink = {
   label: string;
   href: string;
   permission: string;
+  alternatePermissions?: string[];
   icon: typeof LayoutDashboard;
+  standout?: boolean;
 };
 
 const workspaceLinks: NavigationLink[] = [
@@ -34,18 +37,19 @@ const workspaceLinks: NavigationLink[] = [
   { label: "Events", href: "/events", permission: "events:read", icon: CalendarDays },
   { label: "Messages", href: "/messages", permission: "messages:read", icon: MessageCircle },
   { label: "Reports", href: "/reports", permission: "reports:read", icon: BarChart3 },
+  { label: "Submit report", href: "/reports/new", permission: "reports:write", icon: BarChart3 },
+  { label: "Election Monitor", href: "/election-monitoring", permission: "election_monitoring:submit", alternatePermissions: ["election_monitoring:read", "reports:read"], icon: ClipboardCheck, standout: true },
   { label: "Notifications", href: "/notifications", permission: "notifications:read", icon: Bell },
 ];
 
 function usePermissions() {
-  const storedUser = useSyncExternalStore(
-    (onStoreChange) => {
-      window.addEventListener("storage", onStoreChange);
-      return () => window.removeEventListener("storage", onStoreChange);
-    },
-    () => localStorage.getItem("pfm.user") ?? "",
-    () => "",
-  );
+  const [storedUser, setStoredUser] = useState("");
+  useEffect(() => {
+    const readUser = () => setStoredUser(localStorage.getItem("pfm.user") ?? "");
+    readUser();
+    window.addEventListener("storage", readUser);
+    return () => window.removeEventListener("storage", readUser);
+  }, []);
   try {
     const user = JSON.parse(storedUser) as StoredUser;
     return new Set(user.roles?.flatMap((role) => role.permissions ?? []) ?? []);
@@ -66,17 +70,17 @@ export function WorkspaceNavigation({
   memberCount?: number | string;
 }) {
   const permissions = usePermissions();
-  const visibleLinks = workspaceLinks.filter(({ permission }) =>
-    permissions.has(permission),
+  const visibleLinks = workspaceLinks.filter(({ permission, alternatePermissions }) =>
+    permissions.has(permission) || alternatePermissions?.some((alternatePermission) => permissions.has(alternatePermission)),
   );
 
   return (
     <>
       <nav className="nav-list" aria-label="Main navigation">
         <span className="nav-label">Workspace</span>
-        {visibleLinks.map(({ label, href, icon: Icon }) => (
+        {visibleLinks.map(({ label, href, icon: Icon, standout }) => (
           <a
-            className={`nav-item ${label === activeLabel ? "active" : ""}`}
+            className={`nav-item ${label === activeLabel ? "active" : ""} ${standout ? "nav-item-standout" : ""}`}
             href={href}
             key={label}
           >

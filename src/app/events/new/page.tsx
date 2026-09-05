@@ -1,2 +1,2 @@
-import { CreateWorkspaceForm } from "@/components/create-workspace-form";
-export default function NewEventPage() { return <CreateWorkspaceForm type="Event" description="Schedule a gathering for your authorized geography." />; }
+import { EventForm } from "@/components/event-form";
+export default function NewEventPage() { return <EventForm />; }

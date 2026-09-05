@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ChevronDown, MapPinned } from "lucide-react";
+import { ChevronDown, MapPinned, UserRound } from "lucide-react";
 import { WorkspaceShell } from "@/components/workspace-shell";
 
 type Option = { id: string; name: string; code: string };
+type Member = { id: string; firstName: string; lastName: string; email: string | null; phone: string | null; whatsappNumber: string | null; status: string; state: { name: string } | null; localGovernment: { name: string } | null; ward: { name: string } | null; pollingUnit: { name: string } | null };
 const apiUrl = (() => {
   const raw = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3002/api";
   const normalized = raw.replace(/\/+$/, "");
@@ -71,6 +72,9 @@ export default function GeographyPage() {
   const [lga, setLga] = useState("");
   const [ward, setWard] = useState("");
   const [unit, setUnit] = useState("");
+  const [members, setMembers] = useState<Member[]>([]);
+  const [membersLoading, setMembersLoading] = useState(false);
+  const [membersError, setMembersError] = useState("");
   
   useEffect(() => {
     fetchOptions(`${api}/states`)
@@ -103,6 +107,25 @@ export default function GeographyPage() {
       fetchOptions(`${api}/wards/${ward}/polling-units`)
         .then(setUnits);
   }, [ward]);
+
+  useEffect(() => {
+    if (!state) return;
+    setMembersLoading(true);
+    setMembersError("");
+    const params = new URLSearchParams({ page: "1", limit: "100", stateId: state });
+    if (lga) params.set("localGovernmentId", lga);
+    if (ward) params.set("wardId", ward);
+    if (unit) params.set("pollingUnitId", unit);
+    fetch(`${apiUrl}/v1/members?${params.toString()}`, requestOptions())
+      .then(async (response) => {
+        const body = await response.json();
+        if (!response.ok || !Array.isArray(body.data)) throw new Error("Unable to load members for this geography");
+        return body.data as Member[];
+      })
+      .then(setMembers)
+      .catch((error: unknown) => setMembersError(error instanceof Error ? error.message : "Unable to load members for this geography"))
+      .finally(() => setMembersLoading(false));
+  }, [state, lga, ward, unit]);
   
   const selectedUnit = units.find((option) => option.id === unit);
   const ogunState = states.find((s) => s.id === ogunStateId);
@@ -179,6 +202,7 @@ export default function GeographyPage() {
             </span>
           </div>
         )}
+        {state && <div className="geography-members"><div className="panel-heading"><div><h2>Members in this geography</h2><p>{unit ? selectedUnit?.name : ward ? "Selected ward" : lga ? "Selected local government" : ogunState?.name}</p></div><span className="status-badge">{members.length} shown</span></div>{membersLoading ? <div className="loading-state">Loading members...</div> : membersError ? <div className="error-state">{membersError}</div> : members.length === 0 ? <div className="empty-state"><UserRound size={22} /><h2>No members found</h2><p>No members are assigned to the selected geography.</p></div> : <div className="geography-member-list">{members.map((member) => <article className="geography-member-card" key={member.id}><div className="conversation-avatar">{`${member.firstName[0] ?? ""}${member.lastName[0] ?? ""}`.toUpperCase()}</div><div><strong>{member.firstName} {member.lastName}</strong><small>{member.email ?? member.phone ?? "No contact details"}</small><small>{member.ward?.name ?? member.localGovernment?.name ?? member.state?.name ?? "Unassigned"}</small></div><span className={`member-status ${member.status.toLowerCase()}`}>{member.status}</span><a className="secondary-button" href={`/members/${member.id}`}>View member</a></article>)}</div>}</div>}
       </section>
     </WorkspaceShell>
   );
