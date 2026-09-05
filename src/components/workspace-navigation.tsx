@@ -24,6 +24,7 @@ type NavigationLink = {
   label: string;
   href: string;
   permission: string;
+  allowedRoles?: string[];
   alternatePermissions?: string[];
   icon: typeof LayoutDashboard;
   standout?: boolean;
@@ -36,7 +37,7 @@ const workspaceLinks: NavigationLink[] = [
   { label: "Communities", href: "/communities", permission: "communities:read", icon: Activity },
   { label: "Events", href: "/events", permission: "events:read", icon: CalendarDays },
   { label: "Messages", href: "/messages", permission: "messages:read", icon: MessageCircle },
-  { label: "Reports", href: "/reports", permission: "reports:read", icon: BarChart3 },
+  { label: "Reports", href: "/reports", permission: "reports:read", allowedRoles: ["Super Admin"], icon: BarChart3 },
   { label: "Submit report", href: "/reports/new", permission: "reports:write", icon: BarChart3 },
   { label: "Election Monitor", href: "/election-monitoring", permission: "election_monitoring:submit", alternatePermissions: ["election_monitoring:read", "reports:read"], icon: ClipboardCheck, standout: true },
   { label: "Notifications", href: "/notifications", permission: "notifications:read", icon: Bell },
@@ -62,6 +63,22 @@ export function useHasPermission(permission: string) {
   return usePermissions().has(permission);
 }
 
+function useIsSuperAdmin() {
+  const [storedUser, setStoredUser] = useState("");
+  useEffect(() => {
+    const readUser = () => setStoredUser(localStorage.getItem("pfm.user") ?? "");
+    readUser();
+    window.addEventListener("storage", readUser);
+    return () => window.removeEventListener("storage", readUser);
+  }, []);
+  try {
+    const user = JSON.parse(storedUser) as StoredUser;
+    return user.roles?.some((role) => role.name === "Super Admin") ?? false;
+  } catch {
+    return false;
+  }
+}
+
 export function WorkspaceNavigation({
   activeLabel,
   memberCount,
@@ -70,8 +87,11 @@ export function WorkspaceNavigation({
   memberCount?: number | string;
 }) {
   const permissions = usePermissions();
-  const visibleLinks = workspaceLinks.filter(({ permission, alternatePermissions }) =>
-    permissions.has(permission) || alternatePermissions?.some((alternatePermission) => permissions.has(alternatePermission)),
+  const isSuperAdmin = useIsSuperAdmin();
+  const visibleLinks = workspaceLinks.filter(({ permission, allowedRoles, alternatePermissions, label }) =>
+    (!allowedRoles || (allowedRoles.includes("Super Admin") && isSuperAdmin)) &&
+    (label !== "Submit report" || !isSuperAdmin) &&
+    (permissions.has(permission) || alternatePermissions?.some((alternatePermission) => permissions.has(alternatePermission))),
   );
 
   return (
