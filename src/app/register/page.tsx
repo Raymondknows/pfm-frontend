@@ -12,6 +12,7 @@ import {
   MapPinned,
   Phone,
   UserRound,
+  ShieldCheck,
 } from "lucide-react";
 
 type Option = { id: string; name: string; code: string };
@@ -252,11 +253,12 @@ export default function RegisterPage() {
   return (
     <main className="login-page register-page">
       <section className="login-aside register-aside">
+        <a className="auth-brand" href="/"><span className="brand-mark">PF</span><span><strong>People&apos;s First</strong><small>Movement workspace</small></span></a>
         <div className="login-aside-copy">
+          <p className="eyebrow">A place to belong and contribute</p>
           <h1 className="login-headline">
-            <span className="headline-main">People&apos;s First Movement</span>
-            <span className="headline-connector">for</span>
-            <span className="headline-lead">Hon. Oladipupo Adebutu</span>
+            <span className="headline-main">Find your</span>
+            <span className="headline-lead">place in progress.</span>
           </h1>
           <p>
             Create your PFM member account and connect it to the place where you
@@ -273,7 +275,8 @@ export default function RegisterPage() {
           </div>
         </div>
       </section>
-      <section className="login-card register-card">
+      <section className="login-card register-card auth-surface">
+        <a className="mobile-auth-brand" href="/"><span className="brand-mark">PF</span><span><strong>People&apos;s First</strong><small>Movement workspace</small></span></a>
         {message ? (
           <div className="success-state">
             <div className="register-success-icon">
@@ -423,6 +426,7 @@ export default function RegisterPage() {
             <p className="login-footer">
               Already registered? <a href="/login">Sign in</a>
             </p>
+            <div className="auth-trust"><ShieldCheck size={15} /><span>Your contact details stay connected to your consent.</span></div>
           </>
         )}
       </section>

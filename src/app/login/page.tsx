@@ -8,6 +8,7 @@ import {
   LockKeyhole,
   Mail,
   MapPinned,
+  ShieldCheck,
 } from "lucide-react";
 
 const apiUrl = (() => {
@@ -73,15 +74,15 @@ export default function LoginPage() {
   return (
     <main className="login-page">
       <div className="login-aside">
+        <a className="auth-brand" href="/"><span className="brand-mark">PF</span><span><strong>People&apos;s First</strong><small>Movement workspace</small></span></a>
         <div className="login-aside-copy">
+          <p className="eyebrow">Your movement, in one view</p>
           <h1 className="login-headline">
-            <span className="headline-main">People&apos;s First Movement</span>
-            <span className="headline-connector">for</span>
-            <span className="headline-lead">Hon. Oladipupo Adebutu</span>
+            <span className="headline-main">Lead with</span>
+            <span className="headline-lead">clarity.</span>
           </h1>
           <p>
-            One clear view of your people, places, and progress across Ogun
-            State.
+            One clear view of your people, places, and progress across every community in Ogun State.
           </p>
           <div className="login-stat">
             <MapPinned size={18} />
@@ -92,14 +93,15 @@ export default function LoginPage() {
           </div>
         </div>
       </div>
-      <section className="login-card">
+      <section className="login-card auth-surface">
+        <a className="mobile-auth-brand" href="/"><span className="brand-mark">PF</span><span><strong>People&apos;s First</strong><small>Movement workspace</small></span></a>
         <div className="login-card-heading">
           <div className="login-icon">
             <LockKeyhole size={19} />
           </div>
           <p className="eyebrow">Welcome back</p>
           <h2>Sign in to PFM</h2>
-          <p>Use your organization account to continue.</p>
+          <p>Continue to your role-based movement workspace.</p>
         </div>
         <form onSubmit={handleSubmit}>
           <label>
@@ -156,6 +158,7 @@ export default function LoginPage() {
             <ArrowRight size={17} />
           </button>
         </form>
+        <div className="auth-trust"><ShieldCheck size={15} /><span>Secure access with role-based permissions</span></div>
         <p className="login-footer">
           New member? <a href="/register">Register here</a>
           <br />
