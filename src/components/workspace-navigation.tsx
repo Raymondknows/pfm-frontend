@@ -12,6 +12,7 @@ import {
   ClipboardCheck,
   Settings2,
   Users,
+  Send,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { LogoutButton } from "./logout-button";
@@ -41,6 +42,7 @@ const workspaceLinks: NavigationLink[] = [
   { label: "Submit report", href: "/reports/new", permission: "reports:write", icon: BarChart3 },
   { label: "Election Monitor", href: "/election-monitoring", permission: "election_monitoring:submit", alternatePermissions: ["election_monitoring:read", "reports:read"], icon: ClipboardCheck, standout: true },
   { label: "Notifications", href: "/notifications", permission: "notifications:read", icon: Bell },
+  { label: "WhatsApp Broadcast", href: "/whatsapp", permission: "notifications:read", allowedRoles: ["Super Admin"], icon: Send },
 ];
 
 function usePermissions() {
