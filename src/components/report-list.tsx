@@ -95,8 +95,8 @@ export default function ReportList() {
   if (loading) return <div className="p-4">Loading reports...</div>;
 
   return (
-    <div className="p-4 md:p-6 max-w-6xl">
-      <div className="flex items-center justify-end mb-6">
+    <div className="report-workspace">
+      <div className="report-toolbar">
         {canSubmitReports && <Link href="/reports/new" className="primary-button">
           <Plus className="w-5 h-5" />
           <span className="hidden sm:inline">Submit Report</span>
@@ -111,12 +111,12 @@ export default function ReportList() {
       )}
 
       {/* Filter */}
-      <div className="mb-6 flex gap-2">
+      <div className="report-filter-row">
         <div className="relative">
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value as ReportStatus | '')}
-            className="appearance-none px-4 py-2 pr-8 border border-gray-300 rounded-lg bg-white cursor-pointer"
+            className="report-filter"
           >
             <option value="">All Statuses</option>
             <option value="DRAFT">Draft</option>
@@ -131,22 +131,22 @@ export default function ReportList() {
       </div>
 
       {/* Reports Grid */}
-      <div className="space-y-3">
+      <div className="report-list">
         {reports.length === 0 ? (
-          <div className="text-center py-8 border border-dashed border-gray-300 rounded-lg">
-            <AlertCircle className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-            <p className="text-gray-500">No reports found</p>
+          <div className="report-empty">
+            <AlertCircle size={28} />
+            <strong>No reports found</strong>
           </div>
         ) : (
           reports.map((report) => (
             <Link key={report.id} href={`/reports/${report.id}`}>
-              <div className="p-4 border border-gray-200 rounded-lg hover:border-gray-300 hover:bg-gray-50 transition cursor-pointer">
+              <div className="report-card">
                 <div className="flex items-start justify-between mb-2">
                   <div className="flex-1">
                     <h3 className="font-semibold text-gray-900">{report.title}</h3>
                     <p className="text-sm text-gray-600 line-clamp-2">{report.description}</p>
                   </div>
-                  <span className={`px-3 py-1 text-xs font-medium rounded-full whitespace-nowrap ml-4 ${statusColors[report.status]}`}>
+                  <span className={`report-status ${statusColors[report.status]}`}>
                     {report.status.replace('_', ' ')}
                   </span>
                 </div>

@@ -42,7 +42,7 @@ export default function NotificationsPage() {
   return (
     <WorkspaceShell title="Notifications" subtitle="Private updates delivered within your authorized organization and geographic scope.">
       <section className="panel page-panel">
-        <div className="panel-heading"><div><h2>Recent notifications</h2><p>Only notifications addressed to your permitted membership records are shown.</p></div><Bell size={20} color="#247f65" /></div>
+        <div className="panel-heading"><div><span className="eyebrow">Inbox</span><h2>Recent notifications</h2></div><Bell size={20} color="#247f65" /></div>
         {error ? <p className="login-error" role="alert">{error}</p> : items?.length ? <div className="activity-list">{items.map((item) => <article className="activity-item" key={item.id}><span className="activity-avatar"><CheckCircle2 size={16} /></span><div><strong>{item.subject ?? "PFM update"}</strong><p>{item.body}</p><small>{new Date(item.createdAt).toLocaleString()} · {item.channel.replaceAll("_", " ").toLowerCase()}</small></div></article>)}</div> : items ? <EmptyState title="No notifications yet" description="Updates about your membership and permitted activity will appear here." /> : <p>Loading notifications...</p>}
       </section>
     </WorkspaceShell>
