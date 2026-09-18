@@ -186,6 +186,25 @@ export default function MembersPage() {
                 </tbody>
               </table>
             </div>
+            <div className="member-mobile-list">
+              {members.map((member) => (
+                <article className="member-mobile-card" key={member.id}>
+                  <div className="member-mobile-head">
+                    <span className="member-mobile-avatar">{member.firstName.charAt(0)}{member.lastName.charAt(0)}</span>
+                    <div>
+                      <strong>{member.firstName} {member.lastName}</strong>
+                      <small>{member.email ?? member.phone ?? "No contact details"}</small>
+                    </div>
+                    <span className={`member-status ${member.status.toLowerCase()}`}>{member.status}</span>
+                  </div>
+                  <div className="member-mobile-meta">
+                    <span>{member.ward?.name ?? member.localGovernment?.name ?? member.state?.name ?? "Unassigned"}</span>
+                    <span>{member.whatsappNumber ?? member.phone ?? "No phone"}</span>
+                  </div>
+                  <MemberActions member={member} onChange={() => setPage(page)} />
+                </article>
+              ))}
+            </div>
             <div className="pagination">
               <button
                 className="secondary-button"
