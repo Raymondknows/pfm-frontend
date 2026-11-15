@@ -39,6 +39,9 @@ export default function MembersPage() {
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const handleMemberChange = (memberId: string) => {
+    setMembers((current) => current.map((member) => member.id === memberId ? { ...member, status: "ACTIVE" } : member));
+  };
   useEffect(() => {
     const token = localStorage.getItem("pfm.accessToken");
     if (!token) {
@@ -178,7 +181,7 @@ export default function MembersPage() {
                         </span>
                         <MemberActions
                           member={member}
-                          onChange={() => setPage(page)}
+                          onChange={() => handleMemberChange(member.id)}
                         />
                       </td>
                     </tr>
@@ -201,7 +204,7 @@ export default function MembersPage() {
                     <span>{member.ward?.name ?? member.localGovernment?.name ?? member.state?.name ?? "Unassigned"}</span>
                     <span>{member.whatsappNumber ?? member.phone ?? "No phone"}</span>
                   </div>
-                  <MemberActions member={member} onChange={() => setPage(page)} />
+                  <MemberActions member={member} onChange={() => handleMemberChange(member.id)} />
                 </article>
               ))}
             </div>
