@@ -1,16 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { AlertCircle, CheckCircle2, Radio, Send, Smartphone } from "lucide-react";
+import { AlertCircle, CheckCircle2, Link2, Radio, RefreshCw, Send, Smartphone, Unplug } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { WorkspaceShell } from "@/components/workspace-shell";
+import { getApiBaseUrl } from "@/lib/api-url";
 
 type Status = { enabled: boolean; state: string; qr: string | null; error?: string | null };
 type Option = { id: string; name: string };
 type Member = { id: string; firstName: string; lastName: string; whatsappNumber: string | null; status: string };
 type TargetMode = "all" | "selected" | "localGovernment";
 
-const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3002/api";
+const apiUrl = getApiBaseUrl();
 const authHeaders = () => ({ Authorization: `Bearer ${localStorage.getItem("pfm.accessToken") ?? ""}` });
 
 export default function WhatsAppPage() {
@@ -25,6 +26,7 @@ export default function WhatsAppPage() {
   const [body, setBody] = useState("");
   const [result, setResult] = useState("");
   const [sending, setSending] = useState(false);
+  const [connectionAction, setConnectionAction] = useState<"connect" | "disconnect" | null>(null);
 
   const loadStatus = async () => {
     try {
@@ -35,6 +37,25 @@ export default function WhatsAppPage() {
       setStatusError("");
     } catch (error) {
       setStatusError(error instanceof Error ? error.message : "Unable to read WhatsApp connection status");
+    }
+  };
+
+  const updateConnection = async (action: "connect" | "disconnect") => {
+    setConnectionAction(action);
+    setStatusError("");
+    try {
+      const response = await fetch(`${apiUrl}/v1/notifications/whatsapp/${action}`, {
+        method: "POST",
+        headers: authHeaders(),
+      });
+      const data = await response.json() as Status & { message?: string };
+      if (!response.ok) throw new Error(data.message ?? `Unable to ${action} WhatsApp`);
+      setStatus(data);
+    } catch (error) {
+      setStatusError(error instanceof Error ? error.message : `Unable to ${action} WhatsApp`);
+      void loadStatus();
+    } finally {
+      setConnectionAction(null);
     }
   };
 
@@ -96,6 +117,12 @@ export default function WhatsAppPage() {
         {statusError && <p className="form-error"><AlertCircle size={15} />{statusError}</p>}
         {!status?.enabled && <p className="whatsapp-help">Set <strong>WHATSAPP_ENABLED=true</strong> in the backend environment and restart the API. The QR code will appear here.</p>}
         {status?.error && <p className="form-error"><AlertCircle size={15} />{status.error}</p>}
+        {status?.enabled && <div className="whatsapp-connect-actions">
+          {connected ? <button className="secondary-button whatsapp-disconnect" type="button" disabled={connectionAction !== null} onClick={() => void updateConnection("disconnect")}><Unplug size={15} />{connectionAction === "disconnect" ? "Disconnecting..." : "Disconnect"}</button> : <button className="primary-button whatsapp-connect" type="button" disabled={connectionAction !== null || status.state === "connecting"} onClick={() => void updateConnection("connect")}>
+            {connectionAction === "connect" ? <RefreshCw size={15} className="spin" /> : status.state === "needs_qr" ? <RefreshCw size={15} /> : <Link2 size={15} />}
+            {connectionAction === "connect" ? "Connecting..." : status.state === "needs_qr" ? "Refresh QR code" : status.state === "disconnected" || status.state === "error" ? "Reconnect WhatsApp" : "Connect WhatsApp"}
+          </button>}
+        </div>}
         {status?.qr && <div className="whatsapp-qr"><QRCodeSVG value={status.qr} size={220} /><p>On the phone: WhatsApp -&gt; Linked devices -&gt; Link a device.</p></div>}
         {connected && <p className="form-success"><CheckCircle2 size={15} />Connected and ready to send.</p>}
       </article>
