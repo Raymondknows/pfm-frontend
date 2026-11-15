@@ -45,7 +45,7 @@ const workspaceLinks: NavigationLink[] = [
   { label: "WhatsApp Broadcast", href: "/whatsapp", permission: "notifications:read", allowedRoles: ["Super Admin"], icon: Send },
 ];
 
-function usePermissions() {
+export function useWorkspaceAccess() {
   const [storedUser, setStoredUser] = useState("");
   useEffect(() => {
     const readUser = () => setStoredUser(localStorage.getItem("pfm.user") ?? "");
@@ -55,30 +55,17 @@ function usePermissions() {
   }, []);
   try {
     const user = JSON.parse(storedUser) as StoredUser;
-    return new Set(user.roles?.flatMap((role) => role.permissions ?? []) ?? []);
+    return {
+      permissions: new Set(user.roles?.flatMap((role) => role.permissions ?? []) ?? []),
+      isSuperAdmin: user.roles?.some((role) => role.name === "Super Admin") ?? false,
+    };
   } catch {
-    return new Set<string>();
+    return { permissions: new Set<string>(), isSuperAdmin: false };
   }
 }
 
 export function useHasPermission(permission: string) {
-  return usePermissions().has(permission);
-}
-
-function useIsSuperAdmin() {
-  const [storedUser, setStoredUser] = useState("");
-  useEffect(() => {
-    const readUser = () => setStoredUser(localStorage.getItem("pfm.user") ?? "");
-    readUser();
-    window.addEventListener("storage", readUser);
-    return () => window.removeEventListener("storage", readUser);
-  }, []);
-  try {
-    const user = JSON.parse(storedUser) as StoredUser;
-    return user.roles?.some((role) => role.name === "Super Admin") ?? false;
-  } catch {
-    return false;
-  }
+  return useWorkspaceAccess().permissions.has(permission);
 }
 
 export function WorkspaceNavigation({
@@ -88,8 +75,7 @@ export function WorkspaceNavigation({
   activeLabel?: string;
   memberCount?: number | string;
 }) {
-  const permissions = usePermissions();
-  const isSuperAdmin = useIsSuperAdmin();
+  const { permissions, isSuperAdmin } = useWorkspaceAccess();
   const visibleLinks = workspaceLinks.filter(({ permission, allowedRoles, alternatePermissions, label }) =>
     (!allowedRoles || (allowedRoles.includes("Super Admin") && isSuperAdmin)) &&
     (label !== "Submit report" || !isSuperAdmin) &&

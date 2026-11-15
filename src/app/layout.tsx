@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { DM_Sans, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { PwaInstallPrompt } from "@/components/pwa-install-prompt";
@@ -19,7 +19,6 @@ export const metadata: Metadata = {
   title: "PFM | People's First Movement",
   description: "The operating workspace for People's First Movement.",
   manifest: "/manifest.webmanifest",
-  themeColor: "#183b35",
   alternates: {
     canonical: "/",
   },
@@ -49,6 +48,10 @@ export const metadata: Metadata = {
     title: "PFM",
     statusBarStyle: "default",
   },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#183b35",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

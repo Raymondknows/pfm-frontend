@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ChevronDown, AlertCircle, Plus } from 'lucide-react';
 import { useHasPermission } from './workspace-navigation';
+import { getApiBaseUrl } from '@/lib/api-url';
 
 type ReportStatus = 'DRAFT' | 'SUBMITTED' | 'REVIEWING' | 'APPROVED' | 'REJECTED' | 'ARCHIVED';
 
@@ -28,13 +29,13 @@ interface Report {
   pollingUnit?: { name: string } | null;
 }
 
-const statusColors: Record<ReportStatus, string> = {
-  DRAFT: 'bg-gray-100 text-gray-800',
-  SUBMITTED: 'bg-blue-100 text-blue-800',
-  REVIEWING: 'bg-yellow-100 text-yellow-800',
-  APPROVED: 'bg-green-100 text-green-800',
-  REJECTED: 'bg-red-100 text-red-800',
-  ARCHIVED: 'bg-gray-300 text-gray-700',
+const statusClasses: Record<ReportStatus, string> = {
+  DRAFT: 'draft',
+  SUBMITTED: 'submitted',
+  REVIEWING: 'reviewing',
+  APPROVED: 'approved',
+  REJECTED: 'rejected',
+  ARCHIVED: 'archived',
 };
 
 export default function ReportList() {
@@ -60,7 +61,7 @@ export default function ReportList() {
           return;
         }
 
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002/api';
+        const apiUrl = getApiBaseUrl();
         const url = statusFilter
           ? `${apiUrl}/v1/reports?status=${statusFilter}`
           : `${apiUrl}/v1/reports`;
@@ -146,7 +147,7 @@ export default function ReportList() {
                     <h3 className="font-semibold text-gray-900">{report.title}</h3>
                     <p className="text-sm text-gray-600 line-clamp-2">{report.description}</p>
                   </div>
-                  <span className={`report-status ${statusColors[report.status]}`}>
+                  <span className={`report-status ${statusClasses[report.status]}`}>
                     {report.status.replace('_', ' ')}
                   </span>
                 </div>

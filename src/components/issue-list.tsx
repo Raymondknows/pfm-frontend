@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertCircle, CheckCircle2, Clock, AlertTriangle, Zap, Users } from "lucide-react";
+import { AlertCircle, CheckCircle2, Clock, AlertTriangle, Zap, Users, MapPin, UserRound } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -29,11 +29,11 @@ const apiUrl = (() => {
 })();
 
 const categoryIcons: Record<Issue["category"], React.ReactNode> = {
-  INFRASTRUCTURE: <Zap size={16} className="text-yellow-600" />,
-  SECURITY: <AlertTriangle size={16} className="text-red-600" />,
-  COMMUNITY: <Users size={16} className="text-blue-600" />,
-  MEMBERSHIP: <Users size={16} className="text-green-600" />,
-  OTHER: <AlertCircle size={16} className="text-gray-600" />,
+  INFRASTRUCTURE: <Zap size={15} className="issue-category-icon infrastructure" />,
+  SECURITY: <AlertTriangle size={15} className="issue-category-icon security" />,
+  COMMUNITY: <Users size={15} className="issue-category-icon community" />,
+  MEMBERSHIP: <Users size={15} className="issue-category-icon membership" />,
+  OTHER: <AlertCircle size={15} className="issue-category-icon other" />,
 };
 
 const statusBadges: Record<Issue["status"], { label: string; className: string; icon: React.ReactNode }> = {
@@ -180,11 +180,9 @@ export function IssueList() {
 
                 <div className="issue-footer">
                   <div className="issue-details">
-                    <span className="detail">📍 {getLocationDisplay(issue)}</span>
+                      <span className="detail"><MapPin size={14} />{getLocationDisplay(issue)}</span>
                     {issue.assignee && (
-                      <span className="detail">
-                        👤 {issue.assignee.firstName} {issue.assignee.lastName}
-                      </span>
+                        <span className="detail"><UserRound size={14} />{issue.assignee.firstName} {issue.assignee.lastName}</span>
                     )}
                     {issue.reporter && (
                       <span className="detail detail-secondary">
@@ -225,15 +223,16 @@ export function IssueList() {
 
         .filter-select {
           padding: 0.5rem 0.75rem;
-          border: 1px solid #ddd;
-          border-radius: 6px;
-          font-size: 0.875rem;
-          background: white;
+          border: 1px solid var(--line);
+          border-radius: 7px;
+          font-size: 12px;
+          color: var(--ink);
+          background: #fff;
           cursor: pointer;
         }
 
         .filter-select:hover {
-          border-color: #999;
+          border-color: #a8cfbd;
         }
 
         .issues-list {
@@ -243,15 +242,16 @@ export function IssueList() {
         }
 
         .issue-card {
-          border: 1px solid #e0e0e0;
-          border-radius: 8px;
-          padding: 1rem;
-          background: white;
-          transition: box-shadow 0.2s;
+          border: 1px solid var(--line);
+          border-radius: 9px;
+          padding: 16px;
+          background: #fff;
+          transition: border-color 0.15s ease, box-shadow 0.15s ease;
         }
 
         .issue-card:hover {
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+          border-color: #b6d7c7;
+          box-shadow: 0 9px 22px #183b3510;
         }
 
         .issue-header {
@@ -268,9 +268,8 @@ export function IssueList() {
 
         .issue-title {
           margin: 0;
-          font-size: 1rem;
-          font-weight: 600;
-          color: #333;
+          font: 600 15px var(--font-display);
+          color: var(--ink);
         }
 
         .issue-meta {
@@ -293,51 +292,51 @@ export function IssueList() {
         }
 
         .category-badge {
-          background: #f0f0f0;
-          color: #666;
+          background: #edf2ef;
+          color: #5d716a;
         }
 
         .badge-open {
-          background: #fee2e2;
-          color: #dc2626;
+          background: #fbe8e4;
+          color: #a4483d;
         }
 
         .badge-reviewing {
-          background: #fef08a;
-          color: #ca8a04;
+          background: #fbf2d6;
+          color: #9a7626;
         }
 
         .badge-assigned {
-          background: #dbeafe;
-          color: #0284c7;
+          background: #e5eff7;
+          color: #4d7da0;
         }
 
         .badge-progress {
-          background: #e0e7ff;
-          color: #4f46e5;
+          background: #e3f2eb;
+          color: #277b62;
         }
 
         .badge-resolved {
-          background: #dcfce7;
-          color: #16a34a;
+          background: #e3f2eb;
+          color: #277b62;
         }
 
         .badge-closed {
-          background: #f3f4f6;
-          color: #6b7280;
+          background: #edf2ef;
+          color: #64766f;
         }
 
         .issue-date {
-          font-size: 0.75rem;
-          color: #999;
+          font-size: 10px;
+          color: var(--muted);
           white-space: nowrap;
         }
 
         .issue-description {
           margin: 0 0 0.75rem 0;
-          font-size: 0.9rem;
-          color: #555;
-          line-height: 1.4;
+          font-size: 12px;
+          color: var(--muted);
+          line-height: 1.55;
         }
 
         .issue-footer {
@@ -350,25 +349,28 @@ export function IssueList() {
 
         .issue-details {
           display: flex;
-          gap: 1rem;
-          font-size: 0.85rem;
+          gap: 12px;
+          font-size: 11px;
           flex-wrap: wrap;
         }
 
         .detail {
-          color: #666;
+          display: inline-flex;
+          align-items: center;
+          gap: 5px;
+          color: var(--muted);
         }
 
         .detail-secondary {
-          color: #999;
-          font-size: 0.8rem;
+          color: #879891;
+          font-size: 10px;
         }
 
         .loading-state,
         .empty-state {
           padding: 2rem;
           text-align: center;
-          color: #666;
+          color: var(--muted);
         }
 
         .empty-state {
@@ -380,10 +382,10 @@ export function IssueList() {
 
         .error-state {
           padding: 1rem;
-          background: #fee2e2;
-          border: 1px solid #dc2626;
-          border-radius: 6px;
-          color: #991b1b;
+          background: #fbe8e4;
+          border: 1px solid #edc3bb;
+          border-radius: 7px;
+          color: #a4483d;
         }
 
         @media (max-width: 640px) {

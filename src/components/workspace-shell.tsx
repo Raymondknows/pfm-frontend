@@ -62,9 +62,7 @@ export function WorkspaceShell({
       <main className="main-content">
           <header className="topbar">
           <MobileNav />
-          <div className="breadcrumb">
-            {title} <span>/</span> National workspace
-          </div>
+          <div className="breadcrumb">PFM workspace</div>
           <div className="topbar-actions">
             <a className="icon-button" aria-label="Notifications" href="/notifications">
               <Bell size={19} />

@@ -4,6 +4,7 @@ import { AlertCircle, ArrowUpRight, BarChart3, CalendarDays, MapPinned, ShieldCh
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { WorkspaceShell } from "@/components/workspace-shell";
+import { useWorkspaceAccess } from "@/components/workspace-navigation";
 
 type HubSummary = {
   role: string;
@@ -27,6 +28,7 @@ export function RoleHubDashboard({ requestedRole }: { requestedRole: string }) {
   const router = useRouter();
   const [summary, setSummary] = useState<HubSummary | null>(null);
   const [error, setError] = useState("");
+  const { permissions, isSuperAdmin } = useWorkspaceAccess();
   useEffect(() => {
     const token = localStorage.getItem("pfm.accessToken");
     if (!token) {
@@ -63,13 +65,18 @@ export function RoleHubDashboard({ requestedRole }: { requestedRole: string }) {
   const role = summary?.role ?? requestedRole;
   const scope = summary?.scopeType?.replace("_", " ") ?? "AUTHORIZED";
   const quickActions = [
-    { label: "Members", href: "/members", icon: Users, tone: "green" },
-    { label: "Communities", href: "/communities", icon: MapPinned, tone: "blue" },
-    { label: "Issues", href: "/issues", icon: AlertCircle, tone: "coral" },
-    { label: "Reports", href: "/reports", icon: FileText, tone: "yellow" },
-    { label: "Messages", href: "/messages", icon: ShieldCheck, tone: "slate" },
-    { label: "Events", href: "/events", icon: CalendarDays, tone: "green" },
+    { label: "Members", href: "/members", icon: Users, tone: "green", permission: "members:read", superAdminOnly: false },
+    { label: "Communities", href: "/communities", icon: MapPinned, tone: "blue", permission: "communities:read", superAdminOnly: false },
+    { label: "Issues", href: "/issues", icon: AlertCircle, tone: "coral", permission: "issues:read", superAdminOnly: false },
+    { label: "Reports", href: "/reports", icon: FileText, tone: "yellow", permission: "reports:read", superAdminOnly: true },
+    { label: "Messages", href: "/messages", icon: ShieldCheck, tone: "slate", permission: "messages:read", superAdminOnly: false },
+    { label: "Events", href: "/events", icon: CalendarDays, tone: "green", permission: "events:read", superAdminOnly: false },
   ];
+  const visibleQuickActions = quickActions.filter(({ permission, superAdminOnly }) =>
+    permissions.has(permission) && (!superAdminOnly || isSuperAdmin),
+  );
+  const scopeName = summary?.scopeName ?? summary?.parentScopeName ??
+    (summary?.scopeType === "ORGANIZATION" ? "Organization-wide" : "Assigned area");
 
   return (
     <WorkspaceShell
@@ -88,9 +95,8 @@ export function RoleHubDashboard({ requestedRole }: { requestedRole: string }) {
             <div className="hub-hero-copy">
               <span className="eyebrow">{scope} workspace</span>
               <h1>{role}</h1>
-              <p>{summary?.scopeName ?? summary?.parentScopeName ?? "National workspace"}</p>
+              <p>{scopeName}</p>
             </div>
-            <div className="hub-hero-status"><span />Live</div>
           </section>
 
           <section className="kpi-grid hub-kpis">
@@ -158,7 +164,7 @@ export function RoleHubDashboard({ requestedRole }: { requestedRole: string }) {
                 <BarChart3 size={20} color="#247f65" />
               </div>
               <div className="hub-action-list">
-                {quickActions.map(({ label, href, icon: Icon, tone }) => (
+                {visibleQuickActions.map(({ label, href, icon: Icon, tone }) => (
                   <a href={href} key={label} className="hub-action-card">
                     <span className={`hub-action-icon ${tone}`}><Icon size={17} /></span>
                     <strong>{label}</strong>

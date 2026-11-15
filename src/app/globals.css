@@ -266,4 +266,21 @@ button,a { font:inherit; } a { color:inherit; text-decoration:none; }
   .panel-heading { margin-bottom:18px; }
   .target-tab,.secondary-button,.small-action { min-height:38px; }
 }
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline:3px solid #247f65; outline-offset:2px; }
+.sidebar a:focus-visible, .mobile-drawer a:focus-visible, .mobile-drawer button:focus-visible { outline-color:#d8e96a; }
+.mobile-drawer { display:flex; flex-direction:column; overflow-y:auto; overscroll-behavior:contain; }
+.mobile-drawer-head { padding-bottom:20px; }
+.mobile-drawer .nav-list { flex:1; overflow:visible; }
+.mobile-drawer .sidebar-bottom { margin-top:auto; }
+.mobile-drawer nav a { min-height:46px; }
+.drawer-close { width:42px; height:42px; }
+.report-status.draft,.report-status.archived { background:#edf2ef; color:#5d716a; }
+.report-status.submitted { background:#e5eff7; color:#4d7da0; }
+.report-status.reviewing { background:#fbf2d6; color:#9a7626; }
+.report-status.approved { background:#e3f2eb; color:#277b62; }
+.report-status.rejected { background:#fbe8e4; color:#a4483d; }
+.issue-category-icon.infrastructure { color:#9a7626; }
+.issue-category-icon.security { color:#a4483d; }
+.issue-category-icon.community,.issue-category-icon.membership { color:#247f65; }
+.issue-category-icon.other { color:#64766f; }
 

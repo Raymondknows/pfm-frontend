@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { ChevronLeft, AlertCircle, ChevronDown } from 'lucide-react';
+import { getApiBaseUrl } from '@/lib/api-url';
 
 type ReportStatus = 'DRAFT' | 'SUBMITTED' | 'REVIEWING' | 'APPROVED' | 'REJECTED' | 'ARCHIVED';
 
@@ -56,7 +57,7 @@ export default function ReportDetail() {
           return;
         }
 
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002/api';
+        const apiUrl = getApiBaseUrl();
         const response = await fetch(`${apiUrl}/v1/reports/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -93,7 +94,7 @@ export default function ReportDetail() {
 
     try {
       const token = localStorage.getItem('pfm.accessToken');
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002/api';
+      const apiUrl = getApiBaseUrl();
 
       const response = await fetch(`${apiUrl}/v1/reports/${id}/status`, {
         method: 'PATCH',

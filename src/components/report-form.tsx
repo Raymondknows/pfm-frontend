@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { CheckCircle, AlertCircle } from 'lucide-react';
 import { useHasPermission } from './workspace-navigation';
+import { getApiBaseUrl } from '@/lib/api-url';
 
 export default function ReportForm() {
   const router = useRouter();
@@ -47,7 +48,7 @@ export default function ReportForm() {
         return;
       }
 
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002/api';
+      const apiUrl = getApiBaseUrl();
       const payload = {
         title: formData.title,
         description: formData.description,
